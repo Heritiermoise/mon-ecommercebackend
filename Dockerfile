@@ -79,7 +79,7 @@ RUN chown -R www-data:www-data /var/www/html \
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Exposer le port 80 (IMPORTANT pour Render)
+# Exposer le port 80
 EXPOSE 80
 
 # Point d'entrée
