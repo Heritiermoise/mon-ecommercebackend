@@ -1,10 +1,10 @@
-FROM php:8.2-apache
+FROM php:8.3-apache
 
 # Variables d'environnement
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
-# Installer les dépendances système
+# Installer les dÃ©pendances systÃ¨me
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -48,22 +48,22 @@ RUN echo '<Directory /var/www/html/public>\n\
 # Installer Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Définir le répertoire de travail
+# DÃ©finir le rÃ©pertoire de travail
 WORKDIR /var/www/html
 
 # Copier d'abord composer.json pour le cache
 COPY composer.json composer.lock ./
 
-# Installer les dépendances (cache layer)
+# Installer les dÃ©pendances (cache layer)
 RUN composer install --no-dev --optimize-autoloader --no-scripts --no-autoloader
 
 # Copier le reste du projet
 COPY . .
 
-# Générer l'autoloader optimisé
+# GÃ©nÃ©rer l'autoloader optimisÃ©
 RUN composer dump-autoload --optimize --classmap-authoritative
 
-# Créer les fichiers nécessaires
+# CrÃ©er les fichiers nÃ©cessaires
 RUN touch .env \
     && php artisan storage:link || true \
     && mkdir -p storage/app/public \
@@ -76,7 +76,7 @@ RUN touch .env \
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 storage bootstrap/cache
 
-# Script d'entrée
+# Script d'entrÃ©e
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
