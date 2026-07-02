@@ -31,5 +31,6 @@ Thumbs.db
 docker-compose.override.yml
 
 # Certificates
-*.pem
 *.key
+!cert/
+!cert/ca.pem

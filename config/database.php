@@ -3,9 +3,11 @@
 use Illuminate\Support\Str;
 
 return [
+
     'default' => env('DB_CONNECTION', 'mysql'),
 
     'connections' => [
+
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DB_URL'),
@@ -30,7 +32,9 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('DB_MYSQL_ATTR_SSL_CA'),
+                PDO::MYSQL_ATTR_SSL_CA => env('DB_MYSQL_ATTR_SSL_CA')
+                    ? base_path(env('DB_MYSQL_ATTR_SSL_CA'))
+                    : base_path('cert/ca.pem'),
                 PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
             ]) : [],
         ],
@@ -51,7 +55,9 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('DB_MYSQL_ATTR_SSL_CA'),
+                PDO::MYSQL_ATTR_SSL_CA => env('DB_MYSQL_ATTR_SSL_CA')
+                    ? base_path(env('DB_MYSQL_ATTR_SSL_CA'))
+                    : base_path('cert/ca.pem'),
                 PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
             ]) : [],
         ],
@@ -102,7 +108,7 @@ return [
             'username' => env('REDIS_USERNAME'),
             'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', '6379'),
-            'database' => env('REDIS_DB', '0'),
+            'database' => env('DB_DATABASE', '0'),
         ],
         'cache' => [
             'url' => env('REDIS_URL'),
