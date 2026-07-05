@@ -25,7 +25,7 @@ class NotificationController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $notifications->map(fn($n) => [
+            'data' => $notifications->getCollection()->map(fn($n) => [
                 'id' => $n->id,
                 'titre' => $n->titre,
                 'message' => $n->message,
@@ -33,7 +33,7 @@ class NotificationController extends Controller
                 'est_lu' => $n->est_lu,
                 'lien' => $n->lien,
                 'date' => $n->created_at->diffForHumans(),
-            ]),
+            ])->values(),
             'pagination' => [
                 'total' => $notifications->total(),
                 'per_page' => $notifications->perPage(),

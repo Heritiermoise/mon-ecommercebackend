@@ -85,7 +85,7 @@ class ReviewController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'avis' => $avis->map(function($a) {
+                    'avis' => $avis->getCollection()->map(function($a) {
                         return [
                             'id' => $a->id,
                             'note' => $a->note,
@@ -118,7 +118,7 @@ class ReviewController extends Controller
                                         'role' => $r->utilisateur->role,
                                     ] : null,
                                 ];
-                            }),
+                            })->values(),
                         ];
                     }),
                     'pagination' => [

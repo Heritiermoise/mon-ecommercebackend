@@ -26,8 +26,9 @@ DB_PORT=${DB_PORT:-3306}
 DB_DATABASE=${DB_DATABASE}
 DB_USERNAME=${DB_USERNAME}
 DB_PASSWORD=${DB_PASSWORD}
-MYSQL_ATTR_SSL_CA=${MYSQL_ATTR_SSL_CA:-${DB_MYSQL_ATTR_SSL_CA:-cert/ca.pem}}
-DB_MYSQL_ATTR_SSL_CA=${DB_MYSQL_ATTR_SSL_CA:-${MYSQL_ATTR_SSL_CA:-cert/ca.pem}}
+DB_SSLMODE=${DB_SSLMODE:-verify-ca}
+DB_MYSQL_ATTR_SSL_CA=${DB_MYSQL_ATTR_SSL_CA:-${MYSQL_ATTR_SSL_CA:-certs/isrgrootx1.pem}}
+MYSQL_ATTR_SSL_CA=${MYSQL_ATTR_SSL_CA:-${DB_MYSQL_ATTR_SSL_CA:-certs/isrgrootx1.pem}}
 
 CACHE_DRIVER=${CACHE_DRIVER:-file}
 SESSION_DRIVER=${SESSION_DRIVER:-file}
@@ -65,11 +66,13 @@ echo "   DB_HOST: ${DB_HOST:-(vide)}"
 echo "   DB_PORT: ${DB_PORT:-3306}"
 echo "   DB_DATABASE: ${DB_DATABASE:-(vide)}"
 echo "   DB_USERNAME: ${DB_USERNAME:-(vide)}"
-echo "   MYSQL_ATTR_SSL_CA: ${MYSQL_ATTR_SSL_CA:-cert/ca.pem}"
+echo "   DB_SSLMODE: ${DB_SSLMODE:-verify-ca}"
+echo "   DB_MYSQL_ATTR_SSL_CA: ${DB_MYSQL_ATTR_SSL_CA:-(vide)}"
+echo "   MYSQL_ATTR_SSL_CA: ${MYSQL_ATTR_SSL_CA:-certs/isrgrootx1.pem}"
 echo "   JWT_SECRET: $([ -n "$JWT_SECRET" ] && echo '✓ Défini' || echo '❌ MANQUANT')"
 echo ""
 
-SSL_CA_PATH="/var/www/html/${MYSQL_ATTR_SSL_CA:-cert/ca.pem}"
+SSL_CA_PATH="/var/www/html/${DB_MYSQL_ATTR_SSL_CA:-${MYSQL_ATTR_SSL_CA:-certs/isrgrootx1.pem}}"
 if [ -f "$SSL_CA_PATH" ]; then
     echo "✓ Certificat SSL MySQL trouvé: $SSL_CA_PATH"
 else

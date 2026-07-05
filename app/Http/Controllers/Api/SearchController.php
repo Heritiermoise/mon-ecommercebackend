@@ -161,9 +161,9 @@ class SearchController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'produits' => $produits->map(function($p) {
+                    'produits' => $produits->getCollection()->map(function($p) {
                         return $this->formaterProduit($p);
-                    }),
+                    })->values(),
                     'pagination' => [
                         'total' => $total,
                         'per_page' => $produits->perPage(),

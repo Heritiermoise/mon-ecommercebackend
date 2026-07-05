@@ -3,7 +3,7 @@ services:
     name: shoppro-backend
     runtime: docker
     plan: free
-    healthCheckPath: /api/products
+    healthCheckPath: /health.php
     autoDeploy: true
     dockerContext: .
     dockerfilePath: ./Dockerfile
@@ -36,8 +36,8 @@ services:
         sync: false
       - key: DB_PASSWORD
         sync: false
-      - key: MYSQL_ATTR_SSL_CA
-        value: cert/ca.pem
+      - key: DB_MYSQL_ATTR_SSL_CA
+        value: certs/isrgrootx1.pem
       - key: CACHE_DRIVER
         value: file
       - key: SESSION_DRIVER

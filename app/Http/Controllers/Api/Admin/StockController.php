@@ -157,7 +157,7 @@ class StockController extends Controller
 
             $mouvements = $query->orderByDesc('created_at')->paginate(30);
 
-            $formatted = $mouvements->map(function($m) {
+            $formatted = $mouvements->getCollection()->map(function($m) {
                 return [
                     'id' => $m->id,
                     'produit' => $m->produit ? [
@@ -173,7 +173,7 @@ class StockController extends Controller
                     'note' => $m->note,
                     'date' => $m->created_at->format('d/m/Y H:i'),
                 ];
-            });
+            })->values();
 
             return response()->json([
                 'success' => true,

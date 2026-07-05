@@ -24,7 +24,7 @@ class UserController extends Controller
 
             $users = $query->latest()->paginate(20);
 
-            $formattedUsers = $users->map(function($u) {
+            $formattedUsers = $users->getCollection()->map(function($u) {
                 return [
                     'id' => $u->id,
                     'nom' => $u->nom,
@@ -36,7 +36,7 @@ class UserController extends Controller
                     'commandes_count' => $u->commandes()->count(),
                     'total_depense' => (float) $u->getTotalDepense(),
                 ];
-            });
+            })->values();
 
             return response()->json([
                 'success' => true,

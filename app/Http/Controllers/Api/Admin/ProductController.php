@@ -27,7 +27,7 @@ class ProductController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $products->map(function($p) {
+                'data' => $products->getCollection()->map(function($p) {
                     return [
                         'id' => $p->id,
                         'nom' => $p->nom,
@@ -40,7 +40,7 @@ class ProductController extends Controller
                         'marque' => $p->marque,
                         'image_principale' => $p->imagePrincipale ? $p->imagePrincipale->url_image : null,
                     ];
-                }),
+                })->values(),
                 'pagination' => [
                     'total' => $products->total(),
                     'per_page' => $products->perPage(),

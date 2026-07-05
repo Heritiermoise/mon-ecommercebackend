@@ -1,12 +1,12 @@
 ﻿<?php
 
+use Illuminate\Support\Facades\Route;
+
 // ============================================
 // ROUTES AUTH PUBLIQUES (login/register)
 // ============================================
 Route::post('/login', [\App\Http\Controllers\Api\AuthController::class, 'login']);
 Route::post('/register', [\App\Http\Controllers\Api\AuthController::class, 'register']);
-
-use Illuminate\Support\Facades\Route;
 
 // ============================================
 // ROUTES PUBLIQUES (sans authentification)

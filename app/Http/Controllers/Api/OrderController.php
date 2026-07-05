@@ -288,7 +288,7 @@ class OrderController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $commandes->map(function($c) {
+                'data' => $commandes->getCollection()->map(function($c) {
                     return [
                         'id' => $c->id,
                         'numero_commande' => $c->numero_commande,
@@ -305,7 +305,7 @@ class OrderController extends Controller
                         'date_creation' => $c->created_at->format('d/m/Y H:i'),
                         'nombre_articles' => $c->articles->count(),
                     ];
-                }),
+                })->values(),
                 'pagination' => [
                     'total' => $commandes->total(),
                     'per_page' => $commandes->perPage(),

@@ -12,38 +12,40 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = Produit::where('statut', 'actif');
+            $query = Produit::with(['categorie', 'marque', 'imagePrincipale'])
+                ->where('statut', 'actif');
 
             if ($request->has('search')) {
                 $query->where('nom', 'like', '%' . $request->search . '%');
             }
 
             $produits = $query->latest()->paginate(12);
+            $items = $produits->getCollection()->map(function ($p) {
+                return [
+                    'id' => (int) $p->id,
+                    'nom' => $p->nom,
+                    'slug' => $p->slug,
+                    'description' => $p->description,
+                    'prix' => (float) $p->prix,
+                    'prix_remise' => $p->prix_remise ? (float) $p->prix_remise : null,
+                    'quantite_stock' => (int) $p->quantite_stock,
+                    'categorie' => $p->categorie ? [
+                        'id' => (int) $p->categorie->id,
+                        'nom' => $p->categorie->nom,
+                    ] : null,
+                    'marque' => $p->marque ? [
+                        'id' => (int) $p->marque->id,
+                        'nom' => $p->marque->nom,
+                    ] : null,
+                    'image_principale' => $p->imagePrincipale ? $p->imagePrincipale->url_image : null,
+                    'note_moyenne' => (float) ($p->note_moyenne ?? 0),
+                    'nombre_avis' => (int) ($p->nombre_avis ?? 0),
+                ];
+            })->values();
 
             return response()->json([
                 'success' => true,
-                'data' => $produits->map(function($p) {
-                    return [
-                        'id' => (int) $p->id,
-                        'nom' => $p->nom,
-                        'slug' => $p->slug,
-                        'description' => $p->description,
-                        'prix' => (float) $p->prix,
-                        'prix_remise' => $p->prix_remise ? (float) $p->prix_remise : null,
-                        'quantite_stock' => (int) $p->quantite_stock,
-                        'categorie' => $p->categorie ? [
-                            'id' => (int) $p->categorie->id,
-                            'nom' => $p->categorie->nom,
-                        ] : null,
-                        'marque' => $p->marque ? [
-                            'id' => (int) $p->marque->id,
-                            'nom' => $p->marque->nom,
-                        ] : null,
-                        'image_principale' => $p->imagePrincipale ? $p->imagePrincipale->url_image : null,
-                        'note_moyenne' => (float) ($p->note_moyenne ?? 0),
-                        'nombre_avis' => (int) ($p->nombre_avis ?? 0),
-                    ];
-                }),
+                'data' => $items,
                 'pagination' => [
                     'total' => (int) $produits->total(),
                     'per_page' => (int) $produits->perPage(),
