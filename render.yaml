@@ -37,7 +37,9 @@ services:
       - key: DB_PASSWORD
         sync: false
       - key: DB_MYSQL_ATTR_SSL_CA
-        value: cert/ca.pem
+        value: ""
+      - key: DB_MYSQL_ATTR_SSL_VERIFY_SERVER_CERT
+        value: "false"
       - key: CACHE_DRIVER
         value: file
       - key: SESSION_DRIVER
