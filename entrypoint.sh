@@ -27,8 +27,8 @@ DB_DATABASE=${DB_DATABASE}
 DB_USERNAME=${DB_USERNAME}
 DB_PASSWORD=${DB_PASSWORD}
 DB_SSLMODE=${DB_SSLMODE:-verify-ca}
-DB_MYSQL_ATTR_SSL_CA=${DB_MYSQL_ATTR_SSL_CA:-${MYSQL_ATTR_SSL_CA:-certs/isrgrootx1.pem}}
-MYSQL_ATTR_SSL_CA=${MYSQL_ATTR_SSL_CA:-${DB_MYSQL_ATTR_SSL_CA:-certs/isrgrootx1.pem}}
+DB_MYSQL_ATTR_SSL_CA=${DB_MYSQL_ATTR_SSL_CA:-${MYSQL_ATTR_SSL_CA:-cert/ca.pem}}
+MYSQL_ATTR_SSL_CA=${MYSQL_ATTR_SSL_CA:-${DB_MYSQL_ATTR_SSL_CA:-cert/ca.pem}}
 
 CACHE_DRIVER=${CACHE_DRIVER:-file}
 SESSION_DRIVER=${SESSION_DRIVER:-file}
@@ -68,11 +68,11 @@ echo "   DB_DATABASE: ${DB_DATABASE:-(vide)}"
 echo "   DB_USERNAME: ${DB_USERNAME:-(vide)}"
 echo "   DB_SSLMODE: ${DB_SSLMODE:-verify-ca}"
 echo "   DB_MYSQL_ATTR_SSL_CA: ${DB_MYSQL_ATTR_SSL_CA:-(vide)}"
-echo "   MYSQL_ATTR_SSL_CA: ${MYSQL_ATTR_SSL_CA:-certs/isrgrootx1.pem}"
+echo "   MYSQL_ATTR_SSL_CA: ${MYSQL_ATTR_SSL_CA:-cert/ca.pem}"
 echo "   JWT_SECRET: $([ -n "$JWT_SECRET" ] && echo '✓ Défini' || echo '❌ MANQUANT')"
 echo ""
 
-SSL_CA_PATH="/var/www/html/${DB_MYSQL_ATTR_SSL_CA:-${MYSQL_ATTR_SSL_CA:-certs/isrgrootx1.pem}}"
+SSL_CA_PATH="/var/www/html/${DB_MYSQL_ATTR_SSL_CA:-${MYSQL_ATTR_SSL_CA:-cert/ca.pem}}"
 if [ -f "$SSL_CA_PATH" ]; then
     echo "✓ Certificat SSL MySQL trouvé: $SSL_CA_PATH"
 else
