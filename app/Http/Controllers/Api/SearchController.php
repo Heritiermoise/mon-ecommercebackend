@@ -225,7 +225,7 @@ class SearchController extends Controller
                             'slug' => $p->slug,
                             'categorie' => $p->categorie ? $p->categorie->nom : null,
                             'prix' => (float) ($p->prix_remise ?? $p->prix),
-                            'image' => $p->imagePrincipale ? $p->imagePrincipale->url_image : null,
+                            'image' => $p->image_display_url,
                         ];
                     }),
                     'categories' => $categories->map(function($c) {
@@ -457,7 +457,7 @@ class SearchController extends Controller
                 'id' => (int) $p->marque->id,
                 'nom' => $p->marque->nom,
             ] : null,
-            'image_principale' => $p->imagePrincipale ? $p->imagePrincipale->url_image : null,
+            'image_principale' => $p->image_display_url,
             'tags' => $p->tags ? $p->tags->map(function($t) {
                 return ['id' => $t->id, 'nom' => $t->nom, 'slug' => $t->slug];
             }) : [],

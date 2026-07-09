@@ -38,7 +38,7 @@ class ProductController extends Controller
                         'statut' => $p->statut,
                         'categorie' => $p->categorie,
                         'marque' => $p->marque,
-                        'image_principale' => $p->imagePrincipale ? $p->imagePrincipale->url_image : null,
+                        'image_principale' => $p->image_display_url,
                     ];
                 })->values(),
                 'pagination' => [

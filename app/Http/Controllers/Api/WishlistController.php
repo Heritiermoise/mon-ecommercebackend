@@ -27,7 +27,7 @@ class WishlistController extends Controller
                     'slug' => $w->produit->slug,
                     'prix' => (float) $w->produit->getPrixFinal(),
                     'en_stock' => $w->produit->isEnStock(),
-                    'image' => $w->produit->imagePrincipale ? asset('storage/' . $w->produit->imagePrincipale->url_image) : null,
+                    'image' => $w->produit->image_display_url,
                 ],
                 'ajoute_le' => $w->ajoute_le->toISOString(),
             ])

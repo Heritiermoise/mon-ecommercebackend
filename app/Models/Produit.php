@@ -81,6 +81,27 @@ class Produit extends Model
         return $this->hasOne(ImageProduit::class, 'produit_id')->where('est_principale', true);
     }
 
+    public function getImageDisplayUrlAttribute(): string
+    {
+        $image = null;
+
+        if ($this->relationLoaded('imagePrincipale')) {
+            $image = $this->imagePrincipale;
+        } else {
+            $image = $this->imagePrincipale()->first();
+        }
+
+        if (!$image && $this->relationLoaded('images')) {
+            $image = $this->images->sortBy('ordre')->first();
+        }
+
+        if ($image && !empty($image->url_image)) {
+            return $image->url_image;
+        }
+
+        return asset('images/product-placeholder.svg');
+    }
+
     // ============================================
     // MÉTHODES DE PRIX - IMPORTANT !
     // ============================================

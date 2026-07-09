@@ -37,7 +37,7 @@ class ProductController extends Controller
                         'id' => (int) $p->marque->id,
                         'nom' => $p->marque->nom,
                     ] : null,
-                    'image_principale' => $p->imagePrincipale ? $p->imagePrincipale->url_image : null,
+                    'image_principale' => $p->image_display_url,
                     'note_moyenne' => (float) ($p->note_moyenne ?? 0),
                     'nombre_avis' => (int) ($p->nombre_avis ?? 0),
                 ];
@@ -88,7 +88,7 @@ class ProductController extends Controller
                     'quantite_stock' => (int) $produit->quantite_stock,
                     'categorie' => $produit->categorie,
                     'marque' => $produit->marque,
-                    'image_principale' => $produit->imagePrincipale ? $produit->imagePrincipale->url_image : null,
+                    'image_principale' => $produit->image_display_url,
                     'note_moyenne' => (float) ($produit->note_moyenne ?? 0),
                     'nombre_avis' => (int) ($produit->nombre_avis ?? 0),
                 ]

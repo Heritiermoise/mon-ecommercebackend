@@ -163,7 +163,7 @@ class WishlistService
                     'slug' => $p->slug,
                     'prix' => (float) $p->prix,
                     'prix_remise' => $p->prix_remise ? (float) $p->prix_remise : null,
-                    'image' => $p->imagePrincipale ? $p->imagePrincipale->url_image : null,
+                    'image' => $p->image_display_url,
                     'categorie' => $p->categorie ? $p->categorie->nom : null,
                     'en_stock' => $p->quantite_stock > 0,
                 ];

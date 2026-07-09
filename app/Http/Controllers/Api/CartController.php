@@ -304,7 +304,7 @@ class CartController extends Controller
                     'id' => $produit->id,
                     'nom' => $produit->nom,
                     'slug' => $produit->slug,
-                    'image' => $produit->imagePrincipale ? asset('storage/' . $produit->imagePrincipale->url_image) : null,
+                    'image' => $produit->image_display_url,
                     'categorie' => $produit->categorie?->nom,
                     'marque' => $produit->marque?->nom,
                 ],
