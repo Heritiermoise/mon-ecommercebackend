@@ -2,7 +2,9 @@
 
 use Illuminate\Support\Str;
 
-$dbSslCaPath = env('DB_SSL_CA_PATH', env('DB_MYSQL_ATTR_SSL_CA', base_path('cert/isrgrootx1.pem')));
+// Correction 1 : On s'assure que si la variable est définie dans le .env, on l'utilise, 
+// sinon on se rabat de manière sécurisée sur le chemin absolu via base_path()
+$dbSslCaPath = env('DB_MYSQL_ATTR_SSL_CA') ? base_path(env('DB_MYSQL_ATTR_SSL_CA')) : base_path('cert/isrgrootx1.pem');
 
 return [
 
@@ -35,7 +37,8 @@ return [
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => $dbSslCaPath,
-                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+                // Correction 3 : On lie dynamiquement la vérification au fichier .env
+                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => filter_var(env('DB_MYSQL_ATTR_SSL_VERIFY_SERVER_CERT', false), FILTER_VALIDATE_BOOLEAN),
                 PDO::ATTR_EMULATE_PREPARES => true,
             ]) : [],
         ],
@@ -57,7 +60,7 @@ return [
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => $dbSslCaPath,
-                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => filter_var(env('DB_MYSQL_ATTR_SSL_VERIFY_SERVER_CERT', false), FILTER_VALIDATE_BOOLEAN),
                 PDO::ATTR_EMULATE_PREPARES => true,
             ]) : [],
         ],
@@ -108,7 +111,8 @@ return [
             'username' => env('REDIS_USERNAME'),
             'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', '6379'),
-            'database' => env('DB_DATABASE', '0'),
+            // Correction 2 : On utilise REDIS_DB au lieu de DB_DATABASE pour éviter l'index textuel "ecommerce"
+            'database' => env('REDIS_DB', '0'), 
         ],
         'cache' => [
             'url' => env('REDIS_URL'),
