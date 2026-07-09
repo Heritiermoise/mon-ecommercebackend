@@ -49,11 +49,13 @@ Route::get('/api', function () {
         ],
     ]);
 });
-Route::get('/clear-cache', function () {
+Route::get('/clear-cache', function() {
     Artisan::call('config:clear');
     Artisan::call('cache:clear');
     Artisan::call('view:clear');
     Artisan::call('route:clear');
-    return response('Le cache de Laravel a été vidé avec succès !', 200)
-        ->header('Content-Type', 'text/plain; charset=UTF-8');
+    return response()->json([
+        'success' => true,
+        'message' => 'Le cache de Laravel a été vidé avec succès !',
+    ]);
 });
