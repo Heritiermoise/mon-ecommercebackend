@@ -29,7 +29,7 @@ class OrderController extends Controller
 
             $commandes = $query->latest()->paginate(20);
 
-            $formatted = $commandes->map(function($c) {
+            $formatted = $commandes->getCollection()->map(function($c) {
                 return [
                     'id' => (int) $c->id,
                     'numero_commande' => $c->numero_commande,
@@ -46,7 +46,7 @@ class OrderController extends Controller
                     'statut' => $c->statut,
                     'statut_paiement' => $c->statut_paiement,
                     'methode_paiement' => $c->paiement ? $c->paiement->methode : null,
-                    'nombre_articles' => $c->articles->count(),
+                    'nombre_articles' => $c->articles ? $c->articles->count() : 0,
                     'date_creation' => $c->created_at ? $c->created_at->format('d/m/Y H:i') : '',
                 ];
             });

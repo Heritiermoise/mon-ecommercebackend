@@ -3,17 +3,17 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Commande;
-use App\Models\ArticleCommande;
-use App\Models\Panier;
-use App\Models\AdresseLivraison;
 use App\Mail\OrderConfirmationMail;
 use App\Mail\OrderInvoiceMail;
+use App\Models\ArticleCommande;
+use App\Models\Commande;
+use App\Models\Panier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
 {
@@ -23,16 +23,23 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         DB::beginTransaction();
-        
+
         try {
-            $request->validate([
+            $validator = Validator::make($request->all(), [
                 'adresse_livraison_id' => 'required|exists:adresses_livraison,id',
                 'notes' => 'nullable|string',
             ]);
 
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreur de validation',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
             $user = Auth::user();
-            
-            // Récupérer le panier actif
+
             $panier = Panier::where('utilisateur_id', $user->id)
                 ->where('statut', 'actif')
                 ->with(['articles.produit'])
@@ -41,17 +48,18 @@ class OrderController extends Controller
             if (!$panier || $panier->articles->isEmpty()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Votre panier est vide'
+                    'message' => 'Votre panier est vide',
                 ], 400);
             }
 
-            // Calculer les totaux
             $montantTotal = 0;
             $articlesData = [];
-            
+
             foreach ($panier->articles as $article) {
                 $produit = $article->produit;
-                if (!$produit) continue;
+                if (!$produit) {
+                    continue;
+                }
 
                 $prixUnitaire = (float) $article->prix_unitaire;
                 $prixTotal = $prixUnitaire * $article->quantite;
@@ -66,15 +74,11 @@ class OrderController extends Controller
                 ];
             }
 
-            // Frais de livraison (fixe pour l'instant)
-            $fraisLivraison = 5.00;
+            $fraisLivraison = $montantTotal >= 100 ? 0 : 9.99;
             $reduction = 0;
             $totalFinal = $montantTotal + $fraisLivraison - $reduction;
-
-            // Générer le numéro de commande
             $numeroCommande = 'CMD-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -6));
 
-            // Créer la commande
             $commande = Commande::create([
                 'numero_commande' => $numeroCommande,
                 'utilisateur_id' => $user->id,
@@ -84,10 +88,9 @@ class OrderController extends Controller
                 'reduction' => $reduction,
                 'statut' => 'en_attente',
                 'statut_paiement' => 'non_paye',
-                'notes' => $request->notes,
+                'note_client' => $request->notes,
             ]);
 
-            // Créer les articles de la commande
             foreach ($articlesData as $articleData) {
                 ArticleCommande::create([
                     'commande_id' => $commande->id,
@@ -99,15 +102,15 @@ class OrderController extends Controller
                 ]);
             }
 
-            // Vider le panier
             $panier->articles()->delete();
-
             DB::commit();
 
-            // Envoyer l'email de confirmation
             try {
                 Mail::to($user->email)->send(new OrderConfirmationMail($commande));
-                Log::info('Email de confirmation envoyé', ['commande' => $numeroCommande]);
+                if (filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
+                    Mail::to($user->email)->send(new OrderInvoiceMail($commande));
+                }
+                Log::info('Emails de commande envoyés', ['commande' => $numeroCommande]);
             } catch (\Exception $e) {
                 Log::error('Erreur envoi email confirmation: ' . $e->getMessage());
             }
@@ -119,17 +122,21 @@ class OrderController extends Controller
                     'id' => $commande->id,
                     'numero_commande' => $commande->numero_commande,
                     'montant_total' => (float) $commande->montant_total,
+                    'frais_livraison' => (float) $commande->frais_livraison,
+                    'reduction' => (float) $commande->reduction,
+                    'total_final' => (float) $totalFinal,
                     'statut' => $commande->statut,
                     'statut_paiement' => $commande->statut_paiement,
-                ]
+                    'nombre_articles' => count($articlesData),
+                ],
             ], 201);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('OrderController@store: ' . $e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -147,7 +154,7 @@ class OrderController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $commandes->map(function($c) {
+                'data' => $commandes->map(function ($c) {
                     return [
                         'id' => $c->id,
                         'numero_commande' => $c->numero_commande,
@@ -158,10 +165,10 @@ class OrderController extends Controller
                         'statut' => $c->statut,
                         'statut_paiement' => $c->statut_paiement,
                         'methode_paiement' => $c->paiement ? $c->paiement->methode : null,
-                        'date_creation' => $c->created_at->format('d/m/Y H:i'),
+                        'date_creation' => $c->created_at ? $c->created_at->format('d/m/Y H:i') : '',
                         'date_paiement' => $c->paiement && $c->paiement->paye_le ? $c->paiement->paye_le->format('d/m/Y H:i') : null,
-                        'nombre_articles' => $c->articles->count(),
-                        'articles' => $c->articles->map(function($a) {
+                        'nombre_articles' => $c->articles ? $c->articles->count() : 0,
+                        'articles' => $c->articles ? $c->articles->values()->map(function ($a) {
                             return [
                                 'id' => $a->id,
                                 'produit_nom' => $a->produit_nom,
@@ -169,7 +176,7 @@ class OrderController extends Controller
                                 'prix' => (float) $a->prix,
                                 'prix_total' => (float) $a->prix_total,
                             ];
-                        }),
+                        })->values() : [],
                         'adresse_livraison' => $c->adresseLivraison ? [
                             'nom_complet' => $c->adresseLivraison->nom_complet,
                             'telephone' => $c->adresseLivraison->telephone,
@@ -177,13 +184,14 @@ class OrderController extends Controller
                             'ville' => $c->adresseLivraison->ville,
                         ] : null,
                     ];
-                })
+                }),
             ]);
         } catch (\Exception $e) {
             Log::error('OrderController@userOrders: ' . $e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -211,9 +219,9 @@ class OrderController extends Controller
                     'statut' => $commande->statut,
                     'statut_paiement' => $commande->statut_paiement,
                     'methode_paiement' => $commande->paiement ? $commande->paiement->methode : null,
-                    'date_creation' => $commande->created_at->format('d/m/Y H:i'),
+                    'date_creation' => $commande->created_at ? $commande->created_at->format('d/m/Y H:i') : '',
                     'date_paiement' => $commande->paiement && $commande->paiement->paye_le ? $commande->paiement->paye_le->format('d/m/Y H:i') : null,
-                    'articles' => $commande->articles->map(function($a) {
+                    'articles' => $commande->articles->values()->map(function ($a) {
                         return [
                             'id' => $a->id,
                             'produit_id' => $a->produit_id,
@@ -225,12 +233,12 @@ class OrderController extends Controller
                     }),
                     'adresse_livraison' => $commande->adresseLivraison,
                     'paiement' => $commande->paiement,
-                ]
+                ],
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 404);
         }
     }
@@ -248,7 +256,7 @@ class OrderController extends Controller
             if ($commande->statut_paiement === 'paye') {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Impossible d annuler une commande deja payee'
+                    'message' => 'Impossible d annuler une commande deja payee',
                 ], 400);
             }
 
@@ -258,12 +266,12 @@ class OrderController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Commande annulee'
+                'message' => 'Commande annulee',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -276,47 +284,48 @@ class OrderController extends Controller
         try {
             $query = Commande::with(['utilisateur', 'articles.produit', 'adresseLivraison', 'paiement']);
 
-            if ($request->has('statut') && $request->statut) {
+            if ($request->filled('statut')) {
                 $query->where('statut', $request->statut);
             }
 
-            if ($request->has('statut_paiement') && $request->statut_paiement) {
+            if ($request->filled('statut_paiement')) {
                 $query->where('statut_paiement', $request->statut_paiement);
             }
 
             $commandes = $query->orderByDesc('created_at')->paginate(20);
+            $formatted = $commandes->getCollection()->map(function ($c) {
+                return [
+                    'id' => $c->id,
+                    'numero_commande' => $c->numero_commande,
+                    'utilisateur' => $c->utilisateur ? [
+                        'id' => $c->utilisateur->id,
+                        'nom' => $c->utilisateur->nom,
+                        'email' => $c->utilisateur->email,
+                    ] : null,
+                    'montant_total' => (float) $c->montant_total,
+                    'total_final' => (float) $c->montant_total + (float) $c->frais_livraison - (float) $c->reduction,
+                    'statut' => $c->statut,
+                    'statut_paiement' => $c->statut_paiement,
+                    'methode_paiement' => $c->paiement ? $c->paiement->methode : null,
+                    'date_creation' => $c->created_at ? $c->created_at->format('d/m/Y H:i') : '',
+                    'nombre_articles' => $c->articles ? $c->articles->count() : 0,
+                ];
+            })->values();
 
             return response()->json([
                 'success' => true,
-                'data' => $commandes->getCollection()->map(function($c) {
-                    return [
-                        'id' => $c->id,
-                        'numero_commande' => $c->numero_commande,
-                        'utilisateur' => $c->utilisateur ? [
-                            'id' => $c->utilisateur->id,
-                            'nom' => $c->utilisateur->nom,
-                            'email' => $c->utilisateur->email,
-                        ] : null,
-                        'montant_total' => (float) $c->montant_total,
-                        'total_final' => (float) $c->montant_total + (float) $c->frais_livraison - (float) $c->reduction,
-                        'statut' => $c->statut,
-                        'statut_paiement' => $c->statut_paiement,
-                        'methode_paiement' => $c->paiement ? $c->paiement->methode : null,
-                        'date_creation' => $c->created_at->format('d/m/Y H:i'),
-                        'nombre_articles' => $c->articles->count(),
-                    ];
-                })->values(),
+                'data' => $formatted,
                 'pagination' => [
                     'total' => $commandes->total(),
                     'per_page' => $commandes->perPage(),
                     'current_page' => $commandes->currentPage(),
                     'last_page' => $commandes->lastPage(),
-                ]
+                ],
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -336,12 +345,12 @@ class OrderController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Statut mis a jour'
+                'message' => 'Statut mis a jour',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }

@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
@@ -16,12 +17,20 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         try {
-            $request->validate([
+            $validator = Validator::make($request->all(), [
                 'nom' => 'required|string|max:120',
                 'email' => 'required|email|unique:utilisateurs,email',
                 'telephone' => 'nullable|string',
                 'mot_de_passe' => 'required|string|min:8|confirmed',
             ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreur de validation',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
 
             $user = User::create([
                 'nom' => $request->nom,
@@ -36,8 +45,10 @@ class AuthController extends Controller
 
             // Envoyer l'email de bienvenue
             try {
-                Mail::to($user->email)->send(new WelcomeMail($user));
-                Log::info('Email de bienvenue envoyé à ' . $user->email);
+                if (filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
+                    Mail::to($user->email)->send(new WelcomeMail($user));
+                    Log::info('Email de bienvenue envoyé à ' . $user->email);
+                }
             } catch (\Exception $e) {
                 Log::error('Erreur envoi email bienvenue: ' . $e->getMessage());
             }

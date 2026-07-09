@@ -21,7 +21,7 @@ class CartController extends Controller
     public function index()
     {
         $panier = $this->getOrCreatePanier();
-        $panier->load(['articles.produit.categorie', 'articles.produit.marque', 'articles.produit.imagePrincipale']);
+        $this->loadCartRelations($panier);
 
         return response()->json([
             'success' => true,
@@ -87,7 +87,7 @@ class CartController extends Controller
             ]);
         }
 
-        $panier->load(['articles.produit.categorie', 'articles.produit.marque', 'articles.produit.imagePrincipale']);
+        $this->loadCartRelations($panier);
 
         return response()->json([
             'success' => true,
@@ -130,7 +130,7 @@ class CartController extends Controller
         ]);
 
         $panier = $article->panier;
-        $panier->load(['articles.produit.categorie', 'articles.produit.marque', 'articles.produit.imagePrincipale']);
+        $this->loadCartRelations($panier);
 
         return response()->json([
             'success' => true,
@@ -149,7 +149,7 @@ class CartController extends Controller
         
         $article->delete();
 
-        $panier->load(['articles.produit.categorie', 'articles.produit.marque', 'articles.produit.imagePrincipale']);
+        $this->loadCartRelations($panier);
 
         return response()->json([
             'success' => true,
@@ -165,6 +165,8 @@ class CartController extends Controller
     {
         $panier = $this->getOrCreatePanier();
         $panier->articles()->delete();
+
+        $this->loadCartRelations($panier);
 
         return response()->json([
             'success' => true,
@@ -274,13 +276,28 @@ class CartController extends Controller
         return $panier;
     }
 
+    private function loadCartRelations(Panier $panier): void
+    {
+        $panier->loadMissing([
+            'articles.produit.categorie',
+            'articles.produit.marque',
+            'articles.produit.imagePrincipale',
+        ]);
+    }
+
     /**
      * Formater les données du panier
      */
     private function formatCart($panier)
     {
-        $articles = $panier->articles->map(function($article) {
+        $this->loadCartRelations($panier);
+
+        $articles = $panier->articles->values()->map(function($article) {
             $produit = $article->produit;
+            if (!$produit) {
+                return null;
+            }
+
             return [
                 'id' => $article->id,
                 'produit' => [
@@ -288,15 +305,15 @@ class CartController extends Controller
                     'nom' => $produit->nom,
                     'slug' => $produit->slug,
                     'image' => $produit->imagePrincipale ? asset('storage/' . $produit->imagePrincipale->url_image) : null,
-                    'categorie' => $produit->categorie->nom ?? null,
-                    'marque' => $produit->marque->nom ?? null,
+                    'categorie' => $produit->categorie?->nom,
+                    'marque' => $produit->marque?->nom,
                 ],
                 'quantite' => $article->quantite,
                 'prix_unitaire' => (float) $article->prix_unitaire,
                 'prix_total' => (float) ($article->quantite * $article->prix_unitaire),
                 'en_stock' => $produit->quantite_stock >= $article->quantite,
             ];
-        });
+        })->filter()->values();
 
         $sousTotal = $articles->sum('prix_total');
         $reduction = session('promo_reduction', 0);
