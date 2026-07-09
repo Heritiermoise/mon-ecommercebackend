@@ -8,7 +8,9 @@ if [ -z "${APP_KEY:-}" ]; then
     php artisan key:generate --force || true
 fi
 
-SSL_CA_PATH="${DB_MYSQL_ATTR_SSL_CA:-${MYSQL_ATTR_SSL_CA:-cert/ca.pem}}"
+SSL_CA_PATH="${DB_SSL_CA_PATH:-${DB_MYSQL_ATTR_SSL_CA:-${MYSQL_ATTR_SSL_CA:-cert/isrgrootx1 (1).pem}}}"
+SSL_CA_PATH="${SSL_CA_PATH%\"}"
+SSL_CA_PATH="${SSL_CA_PATH#\"}"
 if [ -f "/var/www/html/${SSL_CA_PATH}" ]; then
     echo "Certificat CA trouvé: /var/www/html/${SSL_CA_PATH}"
 else

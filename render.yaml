@@ -13,11 +13,11 @@ services:
       - key: APP_ENV
         value: production
       - key: APP_KEY
-        sync: false
+        value: base64:cYBhg48EWx31z3+VlSp8SzEllcXY70xThT9DyFFjjU0=
       - key: APP_DEBUG
         value: "false"
       - key: APP_URL
-        sync: false
+        value: https://shoppro-backend.onrender.com
       - key: APP_TIMEZONE
         value: UTC
       - key: LOG_CHANNEL
@@ -27,17 +27,17 @@ services:
       - key: DB_CONNECTION
         value: mysql
       - key: DB_HOST
-        sync: false
+        value: gateway01.us-east-1.prod.aws.tidbcloud.com
       - key: DB_PORT
         value: "4000"
       - key: DB_DATABASE
         value: ecommerce
       - key: DB_USERNAME
-        sync: false
+        value: 2nm7aoqJDMvP7m2.root
       - key: DB_PASSWORD
+        value: replace-with-tidb-password
+      - key: DB_SSL_CA_PEM
         sync: false
-      - key: DB_MYSQL_ATTR_SSL_CA
-        value: certs/isrgrootx1.pem
       - key: DB_MYSQL_ATTR_SSL_VERIFY_SERVER_CERT
         value: "true"
       - key: CACHE_DRIVER
@@ -47,7 +47,7 @@ services:
       - key: QUEUE_CONNECTION
         value: sync
       - key: JWT_SECRET
-        sync: false
+        value: replace-with-jwt-secret
       - key: JWT_TTL
         value: "60"
       - key: MAIL_MAILER
@@ -57,9 +57,9 @@ services:
       - key: MAIL_PORT
         value: "2525"
       - key: MAIL_USERNAME
-        sync: false
+        value: replace-with-mailtrap-username
       - key: MAIL_PASSWORD
-        sync: false
+        value: replace-with-mailtrap-password
       - key: MAIL_ENCRYPTION
         value: tls
       - key: MAIL_FROM_ADDRESS
@@ -67,12 +67,12 @@ services:
       - key: MAIL_FROM_NAME
         value: ShopPro
       - key: MAISHAPAY_MERCHANT_ID
-        sync: false
+        value: replace-with-merchant-id
       - key: MAISHAPAY_PUBLIC_KEY
-        sync: false
+        value: replace-with-public-key
       - key: MAISHAPAY_SECRET_KEY
-        sync: false
+        value: replace-with-secret-key
       - key: MAISHAPAY_API_URL
         value: https://marchand.maishapay.online
       - key: FRONTEND_URL
-        sync: false
+        value: https://mon-ecommercefrontend.vercel.app

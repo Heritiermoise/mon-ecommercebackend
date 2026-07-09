@@ -4,6 +4,17 @@ echo "============================================"
 echo "🚀 Démarrage de ShopPro Backend"
 echo "============================================"
 
+SSL_CA_TARGET="${DB_SSL_CA_PATH:-/var/www/html/storage/app/tidb-ca.pem}"
+
+if [ -n "${DB_SSL_CA_PEM:-}" ]; then
+    echo "🧾 Écriture du certificat SSL MySQL depuis DB_SSL_CA_PEM..."
+    printf '%s\n' "$DB_SSL_CA_PEM" > "$SSL_CA_TARGET"
+    export DB_SSL_CA_PATH="$SSL_CA_TARGET"
+    export DB_MYSQL_ATTR_SSL_CA="$SSL_CA_TARGET"
+    export MYSQL_ATTR_SSL_CA="$SSL_CA_TARGET"
+    echo "✓ Certificat SSL enregistré dans $SSL_CA_TARGET"
+fi
+
 # ============================================
 # 1. CRÉER LE FICHIER .ENV DEPUIS LES VARIABLES RENDER
 # ============================================
@@ -27,8 +38,9 @@ DB_DATABASE=${DB_DATABASE}
 DB_USERNAME=${DB_USERNAME}
 DB_PASSWORD=${DB_PASSWORD}
 DB_SSLMODE=${DB_SSLMODE:-verify-ca}
-DB_MYSQL_ATTR_SSL_CA=${DB_MYSQL_ATTR_SSL_CA:-${MYSQL_ATTR_SSL_CA:-cert/ca.pem}}
-MYSQL_ATTR_SSL_CA=${MYSQL_ATTR_SSL_CA:-${DB_MYSQL_ATTR_SSL_CA:-cert/ca.pem}}
+DB_SSL_CA_PATH=${DB_SSL_CA_PATH:-${DB_MYSQL_ATTR_SSL_CA:-${MYSQL_ATTR_SSL_CA:-}}}
+DB_MYSQL_ATTR_SSL_CA=${DB_MYSQL_ATTR_SSL_CA:-${MYSQL_ATTR_SSL_CA:-${DB_SSL_CA_PATH:-}}}
+MYSQL_ATTR_SSL_CA=${MYSQL_ATTR_SSL_CA:-${DB_MYSQL_ATTR_SSL_CA:-${DB_SSL_CA_PATH:-}}}
 
 CACHE_DRIVER=${CACHE_DRIVER:-file}
 SESSION_DRIVER=${SESSION_DRIVER:-file}
