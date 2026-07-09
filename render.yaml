@@ -35,11 +35,13 @@ services:
       - key: DB_USERNAME
         value: 2nm7aoqJDMvP7m2.root
       - key: DB_PASSWORD
-        value: replace-with-tidb-password
-      - key: DB_SSL_CA_PEM
-        sync: false
+        value: PNUtNNw5oAd5cqxx
+      - key: DB_SSLMODE
+        value: preferred
+      - key: DB_MYSQL_ATTR_SSL_CA
+        value: cert/isrgrootx1.pem
       - key: DB_MYSQL_ATTR_SSL_VERIFY_SERVER_CERT
-        value: "true"
+        value: "false"
       - key: CACHE_DRIVER
         value: file
       - key: SESSION_DRIVER

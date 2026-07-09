@@ -34,8 +34,9 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => $dbSslCaPath,
-                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => env('DB_MYSQL_ATTR_SSL_VERIFY_SERVER_CERT', true),
+                PDO::MYSQL_ATTR_SSL_CA => env('DB_MYSQL_ATTR_SSL_CA') ? base_path(env('DB_MYSQL_ATTR_SSL_CA')) : null,
+                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+                PDO::ATTR_EMULATE_PREPARES => true,
             ]) : [],
         ],
 
@@ -55,8 +56,9 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => $dbSslCaPath,
-                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => env('DB_MYSQL_ATTR_SSL_VERIFY_SERVER_CERT', true),
+                PDO::MYSQL_ATTR_SSL_CA => env('DB_MYSQL_ATTR_SSL_CA') ? base_path(env('DB_MYSQL_ATTR_SSL_CA')) : null,
+                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+                PDO::ATTR_EMULATE_PREPARES => true,
             ]) : [],
         ],
 
