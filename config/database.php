@@ -4,7 +4,7 @@ use Illuminate\Support\Str;
 
 // Correction 1 : On s'assure que si la variable est définie dans le .env, on l'utilise, 
 // sinon on se rabat de manière sécurisée sur le chemin absolu via base_path()
-$dbSslCaPath = env('DB_MYSQL_ATTR_SSL_CA') ? base_path(env('DB_MYSQL_ATTR_SSL_CA')) : base_path('cert/isrgrootx1.pem');
+$dbSslCaPath = env('DB_MYSQL_ATTR_SSL_CA') ? base_path(env('DB_MYSQL_ATTR_SSL_CA')) : base_path('certs/isrgrootx1.pem');
 
 return [
 
