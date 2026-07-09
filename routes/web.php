@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
@@ -47,4 +48,12 @@ Route::get('/api', function () {
             'auth' => '/api/login, /api/register',
         ],
     ]);
+});
+Route::get('/clear-cache', function () {
+    Artisan::call('config:clear');
+    Artisan::call('cache:clear');
+    Artisan::call('view:clear');
+    Artisan::call('route:clear');
+    return response('Le cache de Laravel a été vidé avec succès !', 200)
+        ->header('Content-Type', 'text/plain; charset=UTF-8');
 });
