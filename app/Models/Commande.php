@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -29,6 +30,34 @@ class Commande extends Model
         'frais_livraison' => 'decimal:2',
         'reduction' => 'decimal:2',
     ];
+
+    protected static function booted(): void
+    {
+        static::updated(function (Commande $commande): void {
+            if (!$commande->wasChanged('statut_paiement') || $commande->statut_paiement !== 'paye') {
+                return;
+            }
+
+            $articles = $commande->relationLoaded('articles')
+                ? $commande->articles
+                : $commande->articles()->get();
+
+            foreach ($articles as $article) {
+                DB::table('produits_achetes')->updateOrInsert(
+                    [
+                        'produit_id' => $article->produit_id,
+                        'commande_id' => $commande->id,
+                    ],
+                    [
+                        'quantite' => $article->quantite,
+                        'prix_unitaire' => $article->prix,
+                        'updated_at' => now(),
+                        'created_at' => now(),
+                    ]
+                );
+            }
+        });
+    }
 
     public function utilisateur(): BelongsTo
     {

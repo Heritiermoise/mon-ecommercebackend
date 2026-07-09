@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -32,6 +33,35 @@ class Avis extends Model
         'nb_inutile' => 'integer',
         'date_publication' => 'datetime',
     ];
+
+    protected static function booted(): void
+    {
+        $refreshProductStats = function (Avis $avis): void {
+            $produitId = $avis->produit_id;
+
+            if (!$produitId) {
+                return;
+            }
+
+            $moyenne = self::where('produit_id', $produitId)
+                ->where('est_approuve', true)
+                ->avg('note') ?? 0;
+
+            $total = self::where('produit_id', $produitId)
+                ->where('est_approuve', true)
+                ->count();
+
+            DB::table('produits')
+                ->where('id', $produitId)
+                ->update([
+                    'note_moyenne' => $moyenne,
+                    'nombre_avis' => $total,
+                ]);
+        };
+
+        static::saved($refreshProductStats);
+        static::deleted($refreshProductStats);
+    }
 
     // ============================================
     // RELATIONS

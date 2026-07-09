@@ -5,10 +5,10 @@ use Illuminate\Support\Facades\Route;
 
 // Route principale - Redirection vers le frontend
 Route::get('/', function () {
-    $frontendUrl = env('FRONTEND_URL', 'http://localhost:3000');
+    $frontendUrl = env('FRONTEND_URL', 'https://mon-ecommercefrontend.vercel.app');
     
     // Si FRONTEND_URL est défini, rediriger vers le frontend
-    if ($frontendUrl && $frontendUrl !== 'http://localhost:3000') {
+    if ($frontendUrl && $frontendUrl !== 'https://mon-ecommercefrontend.vercel.app') {
         return redirect($frontendUrl);
     }
     

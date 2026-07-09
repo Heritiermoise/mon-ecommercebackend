@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Str;
 
+$dbSslCaPath = env('DB_SSL_CA_PATH', env('DB_MYSQL_ATTR_SSL_CA', base_path('certs/isrgrootx1.pem')));
+
 return [
 
     'default' => env('DB_CONNECTION', 'mysql'),
@@ -32,7 +34,7 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('DB_MYSQL_ATTR_SSL_CA', base_path('cert/ca.pem')),
+                PDO::MYSQL_ATTR_SSL_CA => $dbSslCaPath,
                 PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => env('DB_MYSQL_ATTR_SSL_VERIFY_SERVER_CERT', true),
             ]) : [],
         ],
@@ -53,7 +55,7 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('DB_MYSQL_ATTR_SSL_CA', base_path('cert/ca.pem')),
+                PDO::MYSQL_ATTR_SSL_CA => $dbSslCaPath,
                 PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => env('DB_MYSQL_ATTR_SSL_VERIFY_SERVER_CERT', true),
             ]) : [],
         ],
