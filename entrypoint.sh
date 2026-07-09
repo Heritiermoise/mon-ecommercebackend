@@ -96,6 +96,7 @@ echo ""
 # 3. OPTIMISER LARAVEL
 # ============================================
 echo "⚡ Optimisation de Laravel..."
+php artisan optimize:clear 2>&1 || echo "⚠️ Erreur optimize:clear"
 php artisan config:cache 2>&1 || echo "⚠️ Erreur config:cache"
 php artisan route:cache 2>&1 || echo "⚠️ Erreur route:cache"
 php artisan view:cache 2>&1 || echo "⚠️ Erreur view:cache"
