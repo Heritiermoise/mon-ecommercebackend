@@ -25,7 +25,7 @@ APP_NAME=${APP_NAME:-ShopPro}
 APP_ENV=${APP_ENV:-production}
 APP_KEY=${APP_KEY:-base64:cYBhg48EWx31z3+VlSp8SzEllcXY70xThT9DyFFjjU0=}
 APP_DEBUG=${APP_DEBUG:-false}
-APP_URL=${APP_URL:-https://shoppro-backend.onrender.com}
+APP_URL=${APP_URL:-https://mon-ecommercebackend2.onrender.com}
 APP_TIMEZONE=${APP_TIMEZONE:-UTC}
 
 LOG_CHANNEL=${LOG_CHANNEL:-errorlog}
@@ -36,11 +36,11 @@ DB_HOST=${DB_HOST:-gateway01.us-east-1.prod.aws.tidbcloud.com}
 DB_PORT=${DB_PORT:-3306}
 DB_DATABASE=${DB_DATABASE:-ecommerce}
 DB_USERNAME=${DB_USERNAME:-2nm7aoqJDMvP7m2.root}
-DB_PASSWORD=${DB_PASSWORD:-remplace-par-ton-mot-de-passe-tidb}
+DB_PASSWORD=${DB_PASSWORD:-UhFsjpBuz5zJo5oJ}
 DB_SSLMODE=${DB_SSLMODE:-verify-ca}
-DB_SSL_CA_PATH=${DB_SSL_CA_PATH:-${DB_MYSQL_ATTR_SSL_CA:-${MYSQL_ATTR_SSL_CA:-cert/isrgrootx1 (1).pem}}}
-DB_MYSQL_ATTR_SSL_CA=${DB_MYSQL_ATTR_SSL_CA:-${MYSQL_ATTR_SSL_CA:-${DB_SSL_CA_PATH:-cert/isrgrootx1 (1).pem}}}
-MYSQL_ATTR_SSL_CA=${MYSQL_ATTR_SSL_CA:-${DB_MYSQL_ATTR_SSL_CA:-${DB_SSL_CA_PATH:-cert/isrgrootx1 (1).pem}}}
+DB_SSL_CA_PATH=${DB_SSL_CA_PATH:-${DB_MYSQL_ATTR_SSL_CA:-${MYSQL_ATTR_SSL_CA:-cert/isrgrootx1.pem}}}
+DB_MYSQL_ATTR_SSL_CA=${DB_MYSQL_ATTR_SSL_CA:-${MYSQL_ATTR_SSL_CA:-${DB_SSL_CA_PATH:-cert/isrgrootx1.pem}}}
+MYSQL_ATTR_SSL_CA=${MYSQL_ATTR_SSL_CA:-${DB_MYSQL_ATTR_SSL_CA:-${DB_SSL_CA_PATH:-cert/isrgrootx1.pem}}}
 
 CACHE_DRIVER=${CACHE_DRIVER:-file}
 SESSION_DRIVER=${SESSION_DRIVER:-file}
@@ -79,12 +79,12 @@ echo "   DB_PORT: ${DB_PORT:-4000}"
 echo "   DB_DATABASE: ${DB_DATABASE:-ecommerce}"
 echo "   DB_USERNAME: ${DB_USERNAME:-2nm7aoqJDMvP7m2.root}"
 echo "   DB_SSLMODE: ${DB_SSLMODE:-verify-ca}"
-echo "   DB_MYSQL_ATTR_SSL_CA: ${DB_MYSQL_ATTR_SSL_CA:-cert/isrgrootx1 (1).pem}"
-echo "   MYSQL_ATTR_SSL_CA: ${MYSQL_ATTR_SSL_CA:-cert/isrgrootx1 (1).pem}"
+echo "   DB_MYSQL_ATTR_SSL_CA: ${DB_MYSQL_ATTR_SSL_CA:-cert/isrgrootx1.pem}"
+echo "   MYSQL_ATTR_SSL_CA: ${MYSQL_ATTR_SSL_CA:-cert/isrgrootx1.pem}"
 echo "   JWT_SECRET: $([ -n "${JWT_SECRET:-}" ] && echo '✓ Défini' || echo '❌ MANQUANT')"
 echo ""
 
-SSL_CA_PATH="/var/www/html/${DB_SSL_CA_PATH:-${DB_MYSQL_ATTR_SSL_CA:-${MYSQL_ATTR_SSL_CA:-cert/isrgrootx1 (1).pem}}}"
+SSL_CA_PATH="/var/www/html/${DB_SSL_CA_PATH:-${DB_MYSQL_ATTR_SSL_CA:-${MYSQL_ATTR_SSL_CA:-cert/isrgrootx1.pem}}}"
 if [ -f "$SSL_CA_PATH" ]; then
     echo "✓ Certificat SSL MySQL trouvé: $SSL_CA_PATH"
 else

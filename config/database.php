@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Str;
 
-$dbSslCaPath = env('DB_SSL_CA_PATH', env('DB_MYSQL_ATTR_SSL_CA', base_path('cert/isrgrootx1 (1).pem')));
+$dbSslCaPath = env('DB_SSL_CA_PATH', env('DB_MYSQL_ATTR_SSL_CA', base_path('cert/isrgrootx1.pem')));
 
 return [
 
