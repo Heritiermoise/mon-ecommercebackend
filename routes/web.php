@@ -50,6 +50,7 @@ Route::get('/api', function () {
     ]);
 });
 Route::get('/clear-cache', function() {
+    Artisan::call('optimize:clear');
     Artisan::call('config:clear');
     Artisan::call('cache:clear');
     Artisan::call('view:clear');
